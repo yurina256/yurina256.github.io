@@ -1,0 +1,27 @@
+.sidebar > ul{
+    margin-left: 1rem;
+    margin-top: 3rem;
+}
+
+.sideLink::marker {
+    font-size: 3.3rem;
+    line-height: 5rem;
+}
+
+.sideLink{
+    position: relative;
+}
+
+.sideLink a {
+    position: absolute;
+    top: 1.6rem;
+    left: -0.7rem;
+}
+
+.sideLinkTop{
+    color: #fbc4ae;
+}
+
+.sideLinkTop{
+    color: #fbc4ae;
+}
