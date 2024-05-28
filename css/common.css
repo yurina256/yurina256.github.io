@@ -4,6 +4,10 @@ body{
     overflow-x: hidden;
 }
 
+h1{
+    margin-top: 10rem;
+}
+
 .sidebar{
     position: fixed;
     overflow-x: hidden;
