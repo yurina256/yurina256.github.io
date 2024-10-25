@@ -27,6 +27,9 @@
 .sideLinkWorks{
     color: aqua;
 }
-.sideLinkReference{
+.sideLinkLinks{
     color: #3389d4;
+}
+.sideLinkReference{
+    color: #0000FF;
 }
