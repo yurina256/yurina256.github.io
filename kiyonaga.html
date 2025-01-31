@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sum Multiple Numbers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f9f9f9;
+      margin: 0;
+    }
+    .box {
+      background: #fff;
+      padding: 20px;
+      margin: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 80%;
+      text-align: center;
+    }
+    .input_block_twinpact {
+        display: flex;
+        gap: 10px;
+    }
+    .input_block_normal {
+        display: flex;
+        gap: 10px;
+    }
+    input[type="number"] {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .result {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .remove-btn {
+      background-color: #dc3545;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+    .remove-btn:hover {
+      background-color: #c82333;
+    }
+    .invalid-input {
+      background-color: #f8d7da;
+      border-color: #f5c2c7;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Kiyonaga Calculator</h1>
+    <div class="buttons">
+        <button onclick="addInputField_normal()">通常カード追加</button>
+        <button onclick="addInputField_twinpact()">ツインパクト追加</button>
+        <button onclick="calc()">計算する</button>
+    </div>
+    <hr>
+        <div id="cards_count">枚数:-1</div>
+        <div id="probability">確率:-%</div>
+        <div id="error"></div>
+    <hr>
+    <div id="input-container">
+        <div class="input_block_normal">
+            <input type="number" class="cost" placeholder="コスト">
+            <input type="number" disabled placeholder="-">
+            <input type="number" class="size" placeholder="枚数">
+            <button class="remove-btn" onclick="removeInputField(this)">x</button>
+        </div>
+        <div class="input_block_twinpact">
+            <input type="number" class="cost" placeholder="上面コスト">
+            <input type="number" class="cost" placeholder="下面コスト">
+            <input type="number" class="size" placeholder="枚数">
+            <button class="remove-btn" onclick="removeInputField(this)">x</button>
+        </div>
+    </div>
+    <hr>
+    <div class="buttons">
+        <button onclick="addInputField_normal()">通常カード追加</button>
+        <button onclick="addInputField_twinpact()">ツインパクト追加</button>
+        <button onclick="calc()">計算する</button>
+    </div>
+  </div>
+  <div class="box">
+    <h2>about</h2>
+    <hr>
+    <div class="text">
+      <a href="https://dmwiki.net/%E3%80%8A%E4%BA%94%E8%BC%AA%E3%81%AE%E6%B1%82%E9%81%93%E8%80%85%20%E6%B8%85%E6%B0%B8%E3%80%8B">《五輪の求道者 清永》</a>の攻撃時能力の成功確率を計算するページです。<br>
+      入力欄には能力使用時に引く可能性のある枚数を入力してください(基本的に、能力発動中の《五輪の求道者 清永》を1枚減算した値になります)<br>
+      このページは入力された値の正確性を保証するものではありません。バグ報告は<a href="https://x.com/yurina256">@yurina256</a>まで。
+    </div>
+  </div>
+
+
+  <script>
+    function diff(a,b,c){
+      if(a==b || b==c || c==a) return false;
+      else return true;
+    }
+    function isOK(a,b,c,d,e,f){
+      let x = [a,b];
+      let y = [c,d];
+      let z = [e,f];
+      for(let i=0;i<2;i++){
+        for(let j=0;j<2;j++){
+          for(let k=0;k<2;k++){
+            if(diff(x[i],y[j],z[k])) return true;
+          }
+        }
+      }
+      return false;
+    }
+    function solve(vec,deck_size){
+      //絶対3乗より早くなるけど可読性がゴミカスになるのでこの実装で　基本60^3以下なので
+      //6倍高速化ぐらいは書くべきかも
+      let all = deck_size*(deck_size-1)*(deck_size-2);
+      let type_size = vec.length;
+      let ok = 0;
+      for(let i=0;i<type_size;i++){
+        let a = vec[i][0];
+        let b = vec[i][1];
+        let i_size = vec[i][2];
+        for(let j=0;j<type_size;j++){
+          let c = vec[j][0];
+          let d = vec[j][1];
+          let j_size = vec[j][2];
+          if(i==j) j_size--;
+          for(let k=0;k<type_size;k++){
+            let e = vec[k][0];
+            let f = vec[k][1];
+            let k_size = vec[k][2];
+            if(i==k || j==k) k_size--;
+            if(j_size == 0 || k_size == 0) continue;
+            if(isOK(a,b,c,d,e,f)){
+              //console.log(i,j,k,i_size * j_size * k_size);
+              ok += i_size * j_size * k_size;
+            }
+          }
+        }
+      }
+      return ok/all;
+    }
+    function addInputField_normal() {
+      const inputContainer = document.getElementById('input-container');
+      const newInputBlock = document.createElement('div');
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'x';
+      removeButton.className = 'remove-btn';
+      removeButton.onclick = function () {
+        removeInputField(removeButton);
+      };
+      newInputBlock.className = "input_block_normal"
+      for(let i=0;i<2;i++){
+        const newInput = document.createElement('input');
+        newInput.type = 'number';
+        newInput.placeholder = ['コスト','-'][i];;
+        if(i==1) newInput.disabled = true;
+        else newInput.className = 'cost';
+        newInputBlock.appendChild(newInput);
+      }
+      const sizeInput = document.createElement('input');
+      sizeInput.type = 'number';
+      sizeInput.className = 'size';
+      sizeInput.placeholder = '枚数';
+      newInputBlock.appendChild(sizeInput);
+      newInputBlock.appendChild(removeButton);
+      inputContainer.appendChild(newInputBlock);
+    }
+    function addInputField_twinpact() {
+      const inputContainer = document.getElementById('input-container');
+      const newInputBlock = document.createElement('div');
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'x';
+      removeButton.className = 'remove-btn';
+      removeButton.onclick = function () {
+        removeInputField(removeButton);
+      };
+      newInputBlock.className = "input_block_twinpact"
+      for(let i=0;i<2;i++){
+        const newInput = document.createElement('input');
+        newInput.type = 'number';
+        newInput.className = 'cost';
+        newInput.placeholder = ['上面コスト','下面コスト'][i];
+        newInputBlock.appendChild(newInput);
+      }
+      const sizeInput = document.createElement('input');
+      sizeInput.type = 'number';
+      sizeInput.className = 'size';
+      sizeInput.placeholder = '枚数';
+      newInputBlock.appendChild(sizeInput);
+      newInputBlock.appendChild(removeButton);
+      inputContainer.appendChild(newInputBlock);
+    }
+    function removeInputField(button) {
+        const inputGroup = button.parentElement;
+        inputGroup.remove();
+    }
+    function calc() {
+      let x = value_check_normal();
+      let y = value_check_twinpact();
+      if(x && y) document.getElementById('error').textContent = "";
+      else return;
+      let values = value_get_normal();
+      values = values.concat(value_get_twinpact());
+      let all_size = 0;
+      values.forEach(val => {
+        all_size += val[2];
+      })
+      console.log(all_size,values);
+      document.getElementById('cards_count').textContent = `枚数: ${all_size}`;
+      if(all_size >= 3){
+        let ans = solve(values,all_size)
+        console.log(ans);
+        document.getElementById('probability').textContent = `確率: ${(ans*100).toPrecision(4)}%`;
+      }else{
+        document.getElementById('error').textContent = "デッキ枚数は3枚以上である必要があります";
+        document.getElementById('probability').textContent = `確率: -%`;
+      }
+      /*
+      const inputs = document.querySelectorAll('.size');
+      let sum = 0;
+      let allValid = true;
+
+      inputs.forEach(input => {
+        const value = parseInt(input.value);
+        if (!isNaN(value)) {
+          sum += value;
+        } else {
+          allValid = false;
+        }
+      });
+
+      document.getElementById('cards_count').textContent = allValid ? `枚数: ${sum}` : '枚数: NaN';
+      */
+    }
+    function value_check_normal() {
+      let allValid = true;
+      const inputs = document.querySelectorAll(".input_block_normal");
+      inputs.forEach(input => {
+        const value = parseInt(input.querySelectorAll(".cost")[0].value);
+        const size = parseInt(input.querySelectorAll(".size")[0].value);
+        input.querySelectorAll(".cost")[0].classList.remove('invalid-input');
+        input.querySelectorAll(".size")[0].classList.remove('invalid-input');
+        if(isNaN(value) || value < 0){
+          allValid = false;
+          input.querySelectorAll(".cost")[0].classList.add("invalid-input");
+        }
+        if(isNaN(size) || size < 0){
+          allValid = false;
+          input.querySelectorAll(".size")[0].classList.add("invalid-input");
+        }
+      });
+      if(!allValid){
+        document.getElementById('error').textContent = "赤くなっている部分を修正するか、削除してください";
+        return false;
+      }else{
+        return true;
+      }
+    }
+    function value_get_normal() {
+      const inputs = document.querySelectorAll(".input_block_normal");
+      let values = [];
+      inputs.forEach(input => {
+        const value = parseInt(input.querySelectorAll(".cost")[0].value);
+        const size = parseInt(input.querySelectorAll(".size")[0].value);
+        values.push([value,value,size]);//上コスト、下コスト、個数
+      });
+      console.log("nom " + values);
+      return values;
+    }
+    function value_check_twinpact() {
+      let allValid = true;
+      const inputs = document.querySelectorAll(".input_block_twinpact");
+      inputs.forEach(input => {
+        const value_a = parseInt(input.querySelectorAll(".cost")[0].value);
+        const value_b = parseInt(input.querySelectorAll(".cost")[1].value);
+        const size = parseInt(input.querySelectorAll(".size")[0].value);
+        input.querySelectorAll(".cost")[0].classList.remove('invalid-input');
+        input.querySelectorAll(".cost")[1].classList.remove('invalid-input');
+        input.querySelectorAll(".size")[0].classList.remove('invalid-input');
+        if(isNaN(value_a) || value_a < 0){
+          allValid = false;
+          input.querySelectorAll(".cost")[0].classList.add("invalid-input");
+        }
+        if(isNaN(value_b) || value_b < 0){
+          allValid = false;
+          input.querySelectorAll(".cost")[1].classList.add("invalid-input");
+        }
+        if(isNaN(size) || size < 0){
+          allValid = false;
+          input.querySelectorAll(".size")[0].classList.add("invalid-input");
+        }
+      });
+      if(!allValid){
+        document.getElementById('error').textContent = "赤くなっている部分を修正するか、削除してください";
+        return false;
+      }else{
+        return true;
+      }
+    }
+    function value_get_twinpact() {
+      const inputs = document.querySelectorAll(".input_block_twinpact");
+      let values = [];
+      inputs.forEach(input => {
+        const value_a = parseInt(input.querySelectorAll(".cost")[0].value);
+        const value_b = parseInt(input.querySelectorAll(".cost")[1].value);
+        const size = parseInt(input.querySelectorAll(".size")[0].value);
+        values.push([value_a,value_b,size]);
+      });
+      console.log("twin " + values);
+      return values;
+    }
+  </script>
+</body>
+</html>
