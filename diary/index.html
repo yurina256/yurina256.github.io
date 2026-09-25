@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>東雲 ゆりなのホームページ - 日記</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <style>
+        .diary-area {
+            max-width: 760px;
+            margin: 2rem auto;
+        }
+
+        .diary-entry {
+            display: flex;
+            gap: 1.5rem;
+            margin: 0.75rem 0;
+        }
+
+        .diary-entry time {
+            flex: 0 0 9em;
+            color: #666666;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- サイドバー -->
+    <div class="sidebar">
+        <ul>
+            <li class="sideLink sideLinkTop">
+                <a href="../index.html">
+                    トップ
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkProfile">
+                <a href="../profile.html">
+                    プロフィール
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkWorks">
+                <a href="../works.html">
+                    制作物(?)
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkDiary">
+                <a href="./index.html">
+                    日記
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkLinks">
+                <a href="../links.html">
+                    リンク集
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkReference">
+                <a href="../reference.html">
+                    参考
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- メインカラム -->
+    <div class="mainColumn" style="min-height: 100vh;">
+        <h1 align="center">日記</h1>
+        <hr>
+
+        <main class="diary-area">
+            <div class="diary-entry">
+                <time datetime="2026-09-26">2026年9月26日</time>
+                <a href="./tutorial.html">チュートリアル</a>
+            </div>
+            <div class="diary-entry">
+                <time datetime="2026-09-26">2026年9月26日</time>
+                <a href="./2026_09_26.html">難しめの問題なら誰も見ないし多少邪悪を書いてもいいよね</a>
+            </div>
+        </main>
+
+        <hr>
+        <div style="font-size: 0.85rem; color: #555; text-align: center; margin-top: 2rem;">
+            [ <a href="../index.html">トップへ戻る</a> ]
+        </div>
+    </div>
+</body>
+
+</html>
