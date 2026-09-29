@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>東雲 ゆりなのホームページ - 日記</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <style>
+        .quiz-area {
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .quiz-img {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 60vh;
+            border: 1px solid #333333;
+            background-color: #ffffff;
+            margin: 1rem auto;
+            padding: 4px;
+            object-fit: contain;
+        }
+
+        .correct {
+            color: #0000cd;
+        }
+
+        .wrong {
+            color: #cc0000;
+        }
+
+        .empty {
+            color: #666666;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- サイドバー -->
+    <div class="sidebar">
+        <ul>
+            <li class="sideLink sideLinkTop">
+                <a href="../index.html">
+                    トップ
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkProfile">
+                <a href="../profile.html">
+                    プロフィール
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkWorks">
+                <a href="../works.html">
+                    制作物(?)
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkDiary">
+                <a href="./index.html">
+                    日記
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkLinks">
+                <a href="../links.html">
+                    リンク集
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li class="sideLink sideLinkReference">
+                <a href="../reference.html">
+                    参考
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- メインカラム -->
+    <div class="mainColumn" style="min-height: 100vh;">
+        <div style="margin-top: 1rem;">
+            <a href="./index.html">一覧へ戻る</a>
+        </div>
+        <hr>
+
+        <div class="quiz-area">
+            <p>くそなぞなぞ (難易度:★★★☆☆)</p>
+            <p>めちゃめちゃ砂漠に見えるけど実際はそうではないという場所どーこだ？</p>
+
+            <!-- 入力フォーム（画像の真下） -->
+            <form onsubmit="tryDecrypt(); return false;" style="margin-top: 1rem;">
+                <label for="answer-input">答え(ひらがなで)：</label>
+                <input type="text" id="answer-input" size="24" autocomplete="off">
+                <input type="submit" id="submit-btn" value="解答">
+            </form>
+
+            <!-- 暗号化テキスト表示部（復号時にここが直接上書きされる。スクロールなしで全文展開） -->
+            <div style="margin: 1.2rem auto; text-align: left; max-width: 540px;">
+                <div id="cipher-text" style="width: 100%; box-sizing: border-box; font-family: monospace; font-size: 0.85rem; background: #f8f8f8; border: 1px solid #333333; padding: 10px; line-height: 1.6; word-break: break-all; white-space: pre-wrap; min-height: 80px;"></div>
+            </div>
+        </div>
+        <hr>
+
+        <div style="font-size: 0.85rem; color: #555; text-align: center; margin-top: 2rem;">
+            [ <a href="../works.html">制作物一覧へ戻る</a> ]
+        </div>
+    </div>
+
+    <script>
+        // ==============================================
+        // 暗号設定
+        // ==============================================
+        const SALT = "yurina_quiz_salt_2026";
+        const PBKDF2_ITERATIONS = 250000; // 鍵ストレッチング回数（総当たり攻撃を遅延・無力化）
+
+        // 初期暗号文 (Base64)
+        const ORIGINAL_CIPHERTEXT = "+UD+hlw885r0FISboNJw0Ry1x+VeQD0w2FA6f2R2L8GmC3hYuZDwBh2O3cGPOrFFF56skvexfKh3GiThakVDmB851d2aG+yAMTMyLVTJL0dWoK/F44VHSeN2pXp3jSfc025ZihJQZMcOBfh1QJcfaL7J8U9fPXvRaRown9OKcI1WaxgZ0xDJ9fRbb3z5PdzMcJ2JLa9SNNYC60aBRfh5luuB7hg8gIDFGqBiiQx4lF7f3DhOPI3ubRu2DsnpYBH4eVfkWkVpRUrij1Yy1VhGBIMgGUM6QEzyWQ8mpBVPC7zbByOCFVNTS++FUkKML4wV+wBbBjzacUdoEPmH4sSg3hHqa5jQtzabxKKh3Bmert5CYUStvzJQYXNdiDg5cfR/twMyLHcGetkKWlMmiCO4wYRdxxBDq6odLsP7BgDDGhMy1pCHuBHVPHadub8onXmQlHbLfJQoShVO0+E/ws/gPs46cIhAAtHdTjEci2yxlAQ8q9+Oj5RYn+OW1Gg+w40nFO99dTsQbrPKyduIQQSB1CUeAgOAgajwMM7QYC/bWDwKCHf33rAeKmuzyWypF7qg0TifFvP11BO5/Ks+NCkoqBigLyqsy/wXjInuKC7pyncfGT2Xebv23vPYIstr9x7HM3+cbNQn7EC/6df8N5iqDOoBmPYW/T+4fArQ6gIRYJXnrf6lGorN7qq4Bu2vLXKVbPIa7g9eJEsPqzcNYRliLFyv/SztFfeLBa97bsYXBKPBnkz3Hsbb1NttZ2hzNCmQJDtLzdRJDc5ucv2k2stpyGhLtcX25vAKswZrEApruX7iQeZrRmnH0jAxJTgI9YA/GoIiM/89rheIfCwEDdsigc8Pxu5WOSTjSvE3QJYtuEHvbL4Zv75KJBInSZzZOT22axsFq/MzOYxtd4ecK3xrZHh2HPKLAMdz/nnpelKBxA5DWgupsFxq0/8IYzZNPUk6irqLE1TM4UknCMOeN7kXdPkNIu+z+C8Qx5kwQ8irYZAr5YYY1PPiiXaKF+zKoq90AldrmR5MEyP6hzZ3xG6DIrOJvf0I3nh8KebrthBMRbmGz6WCrPvyOjjk7Om5Oo7YWdpaLZrAI5dDjPalOYc7kXERc1vUaWVdtlCP4n7CrH5Uy5msQVJbP2765/7OMYtNWD94S0mzyj9Fif2W+A==";
+            window.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("cipher-text").textContent = ORIGINAL_CIPHERTEXT;
+        });
+
+        // PBKDF2 による鍵ストレッチング導出
+        async function deriveKey(keyword, salt, usages) {
+            const baseKey = await crypto.subtle.importKey(
+                "raw",
+                new TextEncoder().encode(keyword),
+                "PBKDF2",
+                false,
+                ["deriveKey"]
+            );
+            return crypto.subtle.deriveKey(
+                {
+                    name: "PBKDF2",
+                    salt: new TextEncoder().encode(salt),
+                    iterations: PBKDF2_ITERATIONS,
+                    hash: "SHA-256"
+                },
+                baseKey,
+                { name: "AES-CTR", length: 256 },
+                false,
+                usages
+            );
+        }
+
+        // Base64デコード用ヘルパー
+        function base64ToUint8Array(base64) {
+            const binary = atob(base64.trim());
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        // Base64エンコード用ヘルパー
+        function arrayBufferToBase64(buffer) {
+            let binary = "";
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // AES-CTR 復号関数（認証タグを持たないため、どんな鍵でもエラーなく何かしらのテキストを復号）
+        async function decryptMessage(encryptedBase64, keyword, salt) {
+            try {
+                const raw = base64ToUint8Array(encryptedBase64);
+                if (raw.length < 17) return "";
+                const counter = raw.slice(0, 16);
+                const data = raw.slice(16);
+
+                const key = await deriveKey(keyword, salt, ["decrypt"]);
+                const decryptedBuffer = await crypto.subtle.decrypt(
+                    { name: "AES-CTR", counter: counter, length: 64 },
+                    key,
+                    data
+                );
+                return new TextDecoder("utf-8", { fatal: false }).decode(decryptedBuffer);
+            } catch (e) {
+                return "";
+            }
+        }
+
+        // AES-CTR 暗号化関数（新しい問題を作成する用）
+        async function encryptMessage(plainText, keyword, salt, iterations = PBKDF2_ITERATIONS) {
+            const baseKey = await crypto.subtle.importKey(
+                "raw",
+                new TextEncoder().encode(keyword),
+                "PBKDF2",
+                false,
+                ["deriveKey"]
+            );
+            const key = await crypto.subtle.deriveKey(
+                {
+                    name: "PBKDF2",
+                    salt: new TextEncoder().encode(salt),
+                    iterations: iterations,
+                    hash: "SHA-256"
+                },
+                baseKey,
+                { name: "AES-CTR", length: 256 },
+                false,
+                ["encrypt"]
+            );
+            const counter = crypto.getRandomValues(new Uint8Array(16));
+            const encBuffer = new TextEncoder().encode(plainText);
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-CTR", counter: counter, length: 64 },
+                key,
+                encBuffer
+            );
+            const combined = new Uint8Array(counter.length + encrypted.byteLength);
+            combined.set(counter, 0);
+            combined.set(new Uint8Array(encrypted), counter.length);
+            return arrayBufferToBase64(combined);
+        }
+
+        // 入力の正規化（全角カタカナ→ひらがな、英小文字化、前後の余白除去）
+        function normalizeInput(str) {
+            return str.trim().toLowerCase().replace(/[\u30a1-\u30f6]/g, function(match) {
+                return String.fromCharCode(match.charCodeAt(0) - 0x60);
+            });
+        }
+
+        // 入力値で復号を試行し、メッセージ枠を直接上書きする関数
+        async function tryDecrypt() {
+            const input = document.getElementById("answer-input");
+            const btn = document.getElementById("submit-btn");
+            const cipherBox = document.getElementById("cipher-text");
+            const rawVal = input.value.trim();
+
+            if (!rawVal) {
+                return;
+            }
+
+            // PBKDF2 の計算中にボタン表示を切り替え
+            btn.disabled = true;
+            btn.value = "復号中...";
+
+            // UIの再描画を待つ
+            await new Promise(resolve => setTimeout(resolve, 20));
+
+            try {
+                const normalizedVal = normalizeInput(rawVal);
+
+                // 初期暗号文を元に復号を実行
+                let decryptedText = await decryptMessage(ORIGINAL_CIPHERTEXT, normalizedVal, SALT);
+
+                // メッセージ枠を復号結果で直接上書き！
+                // （スクロールバーなしで全文が自然に展開表示されます）
+                cipherBox.textContent = decryptedText;
+            } finally {
+                btn.disabled = false;
+                btn.value = "解答";
+            }
+        }
+    </script>
+</body>
+
+</html>
